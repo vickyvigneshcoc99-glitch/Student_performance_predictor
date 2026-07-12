@@ -114,7 +114,32 @@ report/PPT.
 
 ---
 
-## 📌 Notes for Internship Submission
+## � Deployment
+
+This project is configured to deploy as a Streamlit web app.
+
+### Recommended host: Render
+
+1. Go to https://dashboard.render.com/
+2. Create a free account or log in.
+3. Click **New** → **Web Service**.
+4. Connect your GitHub repository: `vickyvigneshcoc99-glitch/Student_performance_predictor`.
+5. Use the following settings:
+   - **Environment**: Python
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.enableCORS false`
+   - **Instance Type**: Starter
+6. Save and deploy.
+
+Render will use the included `render.yaml` manifest automatically.
+
+### Alternative: Docker deploy
+
+If you prefer Docker, the repository already includes a `Dockerfile`.
+
+---
+
+## �📌 Notes for Internship Submission
 
 - This is a self-contained mini-project — no external API keys or
   internet access required to run it.
