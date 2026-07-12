@@ -36,6 +36,16 @@ def load_dataset():
     return pd.read_csv(DATA_PATH)
 
 
+@st.cache_data
+def get_summary_stats(df: pd.DataFrame):
+    return {
+        "shape": df.shape,
+        "head": df.head(10).to_string(index=False),
+        "describe": df.describe().to_string(),
+        "corr": df.select_dtypes(include="number").corr()["Final_Score"].sort_values(ascending=False).to_string(),
+    }
+
+
 def main():
     # ---------------- Sidebar ----------------
     st.sidebar.title("🎓 Navigation")
@@ -76,13 +86,14 @@ def main():
     elif page == "Dataset Overview":
         st.title("📊 Dataset Overview")
         df = load_dataset()
+        summary = get_summary_stats(df)
 
-        st.write(f"**Shape:** {df.shape[0]} rows × {df.shape[1]} columns")
+        st.write(f"**Shape:** {summary['shape'][0]} rows × {summary['shape'][1]} columns")
         st.write("Sample rows:")
-        st.write(df.head(10).to_string(index=False))
+        st.write(summary["head"])
 
         st.subheader("Summary Statistics")
-        st.write(df.describe().to_string())
+        st.write(summary["describe"])
 
         st.subheader("Final Score Distribution")
         fig, ax = plt.subplots(figsize=(8, 4))
@@ -91,9 +102,7 @@ def main():
         st.pyplot(fig)
 
         st.subheader("Correlation Summary")
-        numeric_df = df.select_dtypes(include="number")
-        corr = numeric_df.corr()["Final_Score"].sort_values(ascending=False)
-        st.write(corr.to_string())
+        st.write(summary["corr"])
 
     # ---------------- Prediction ----------------
     elif page == "Predict Performance":
