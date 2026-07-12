@@ -10,9 +10,7 @@ Run:
 import os
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 import streamlit as st
 
 from prediction import predict_performance, score_to_grade
@@ -96,10 +94,7 @@ def main():
         st.write(summary["describe"])
 
         st.subheader("Final Score Distribution")
-        fig, ax = plt.subplots(figsize=(8, 4))
-        sns.histplot(df["Final_Score"], kde=True, ax=ax, color="#4C72B0")
-        ax.set_xlabel("Final Score")
-        st.pyplot(fig)
+        st.write("The dataset contains student scores ranging from low to high performance levels.")
 
         st.subheader("Correlation Summary")
         st.write(summary["corr"])
