@@ -69,7 +69,7 @@ Student_Performance_Predictor/
   Hours, Weekly Study Hours, Extracurricular Activities, Internet Access,
   Parental Education.
 - **Target:** `Final_Score` (0–100).
-- **Model:** `RandomForestRegressor` inside a scikit-learn `Pipeline`
+- **Model:** `LinearRegression` inside a scikit-learn `Pipeline`
   that also handles scaling (numeric features) and one-hot encoding
   (categorical features), so `prediction.py` can pass raw values
   straight in.
@@ -123,7 +123,7 @@ This project is configured to deploy as a Streamlit web app.
 1. Go to https://dashboard.render.com/
 2. Create a free account or log in.
 3. Click **New** → **Web Service**.
-4. Connect your GitHub repository: `vickyvigneshcoc99-glitch/Student_performance_predictor`.
+4. Connect your GitHub repository: https://github.com/vickyvigneshcoc99-glitch/Student_performance_predictor.
 5. Use the following settings:
    - **Environment**: Python
    - **Build Command**: `pip install -r requirements.txt`

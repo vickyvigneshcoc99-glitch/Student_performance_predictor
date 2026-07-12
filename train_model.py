@@ -13,7 +13,7 @@ Run:
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -51,9 +51,7 @@ def build_pipeline() -> Pipeline:
         ]
     )
 
-    model = RandomForestRegressor(
-        n_estimators=200, max_depth=8, random_state=42, n_jobs=-1
-    )
+    model = LinearRegression()
 
     pipeline = Pipeline(
         steps=[("preprocessor", preprocessor), ("regressor", model)]

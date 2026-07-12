@@ -28,6 +28,8 @@ st.set_page_config(
     layout="wide",
 )
 
+st.set_option("client.showErrorDetails", False)
+
 
 @st.cache_data
 def load_dataset():
@@ -76,26 +78,22 @@ def main():
         df = load_dataset()
 
         st.write(f"**Shape:** {df.shape[0]} rows × {df.shape[1]} columns")
-        st.dataframe(df.head(20), use_container_width=True)
+        st.write("Sample rows:")
+        st.write(df.head(10).to_string(index=False))
 
-        col1, col2 = st.columns(2)
+        st.subheader("Summary Statistics")
+        st.write(df.describe().to_string())
 
-        with col1:
-            st.subheader("Summary Statistics")
-            st.dataframe(df.describe(), use_container_width=True)
+        st.subheader("Final Score Distribution")
+        fig, ax = plt.subplots(figsize=(8, 4))
+        sns.histplot(df["Final_Score"], kde=True, ax=ax, color="#4C72B0")
+        ax.set_xlabel("Final Score")
+        st.pyplot(fig)
 
-        with col2:
-            st.subheader("Final Score Distribution")
-            fig, ax = plt.subplots()
-            sns.histplot(df["Final_Score"], kde=True, ax=ax, color="#4C72B0")
-            ax.set_xlabel("Final Score")
-            st.pyplot(fig)
-
-        st.subheader("Correlation Heatmap")
+        st.subheader("Correlation Summary")
         numeric_df = df.select_dtypes(include="number")
-        fig2, ax2 = plt.subplots(figsize=(8, 5))
-        sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", ax=ax2)
-        st.pyplot(fig2)
+        corr = numeric_df.corr()["Final_Score"].sort_values(ascending=False)
+        st.write(corr.to_string())
 
     # ---------------- Prediction ----------------
     elif page == "Predict Performance":
@@ -104,56 +102,51 @@ def main():
         if not os.path.exists(MODEL_PATH):
             st.error("Model not found. Please run `python train_model.py` first.")
         else:
-            col1, col2 = st.columns(2)
-
-            with col1:
-                hours_studied = st.slider("Hours Studied (per day)", 0.0, 12.0, 5.0, 0.5)
-                attendance = st.slider("Attendance (%)", 40.0, 100.0, 80.0, 1.0)
-                previous_scores = st.slider("Previous Scores", 0.0, 100.0, 65.0, 1.0)
-                sleep_hours = st.slider("Sleep Hours (per day)", 3.0, 10.0, 7.0, 0.5)
-
-            with col2:
-                study_hours_per_week = st.slider(
-                    "Study Hours Per Week", 0.0, 80.0, 35.0, 1.0
-                )
-                extracurricular = st.selectbox("Extracurricular Activities", ["Yes", "No"])
-                internet_access = st.selectbox("Internet Access", ["Yes", "No"])
-                parental_education = st.selectbox(
-                    "Parental Education", ["High School", "Graduate", "Postgraduate"]
-                )
+            st.write("Enter the student's details below:")
+            hours_studied = st.text_input("Hours Studied (per day)", value="5")
+            attendance = st.text_input("Attendance (%)", value="80")
+            previous_scores = st.text_input("Previous Scores", value="65")
+            sleep_hours = st.text_input("Sleep Hours (per day)", value="7")
+            study_hours_per_week = st.text_input("Study Hours Per Week", value="35")
+            extracurricular = st.text_input("Extracurricular Activities (Yes/No)", value="Yes")
+            internet_access = st.text_input("Internet Access (Yes/No)", value="Yes")
+            parental_education = st.text_input(
+                "Parental Education (High School/Graduate/Postgraduate)",
+                value="Graduate",
+            )
 
             st.markdown("---")
 
             if st.button("Predict Performance 🚀", type="primary"):
-                score = predict_performance(
-                    hours_studied=hours_studied,
-                    attendance=attendance,
-                    previous_scores=previous_scores,
-                    sleep_hours=sleep_hours,
-                    study_hours_per_week=study_hours_per_week,
-                    extracurricular=extracurricular,
-                    internet_access=internet_access,
-                    parental_education=parental_education,
-                )
-                grade = score_to_grade(score)
+                try:
+                    score = predict_performance(
+                        hours_studied=float(hours_studied),
+                        attendance=float(attendance),
+                        previous_scores=float(previous_scores),
+                        sleep_hours=float(sleep_hours),
+                        study_hours_per_week=float(study_hours_per_week),
+                        extracurricular=extracurricular.strip().title(),
+                        internet_access=internet_access.strip().title(),
+                        parental_education=parental_education.strip().title(),
+                    )
+                    grade = score_to_grade(score)
 
-                result_col1, result_col2 = st.columns(2)
-                with result_col1:
                     st.metric("Predicted Final Score", f"{score} / 100")
-                with result_col2:
                     st.metric("Predicted Grade", grade)
 
-                st.progress(min(int(score), 100))
+                    st.progress(min(int(score), 100))
 
-                if score >= 70:
-                    st.success("Great! The student is predicted to perform well. 🎉")
-                elif score >= 50:
-                    st.info("The student is predicted to pass with a moderate score.")
-                else:
-                    st.warning(
-                        "The student is at risk of low performance. "
-                        "Consider more study hours and better attendance."
-                    )
+                    if score >= 70:
+                        st.success("Great! The student is predicted to perform well. 🎉")
+                    elif score >= 50:
+                        st.info("The student is predicted to pass with a moderate score.")
+                    else:
+                        st.warning(
+                            "The student is at risk of low performance. "
+                            "Consider more study hours and better attendance."
+                        )
+                except ValueError:
+                    st.error("Please enter valid numeric values for the score fields.")
 
 
 if __name__ == "__main__":
